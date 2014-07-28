@@ -18,7 +18,7 @@ public class GoEuroTest {
 		try{
 			String inputString = args[0];
 			String queryString = "http://api.goeuro.com/api/v2/position/suggest/en/" + inputString ;
-			
+			queryString = queryString.replaceAll(" ", "%20");
 //			Default Http Client creation
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			
@@ -36,28 +36,34 @@ public class GoEuroTest {
 //			Read response content
 			BufferedReader br = new BufferedReader( new InputStreamReader((response.getEntity().getContent())));
 			String output = br.readLine();
-			
-//			Create a PrintWriter Class object for csv file creation
-			PrintWriter writer = new PrintWriter("TheOutputFile.csv", "UTF-8");
+			if(output.length() > 2){
+//				Create a PrintWriter Class object for csv file creation
+				PrintWriter writer = new PrintWriter("TheOutputFile.csv", "UTF-8");
 
-//			Parsing of returned JSON Array			
-			JSONParser parser=new JSONParser();
-			Object obj = parser.parse(output);
-	        JSONArray array = (JSONArray)obj;
-	        Iterator itr = array.iterator();
-	        while(itr.hasNext()) {
-	        	 JSONObject obj2 = (JSONObject)itr.next();
-	        	 writer.print(obj2.get("_type") + ",");
-	        	 writer.print(obj2.get("_id") + ",");
-	        	 writer.print(obj2.get("name") + ",");
-	        	 writer.print(obj2.get("type") + ",");
-	        	 JSONObject obj3 = (JSONObject)obj2.get("geo_position");
-	        	 writer.print(obj3.get("latitude") + ",");
-	        	 writer.println(obj3.get("longitude"));
-	         }
-	         
-//	        Close the file writer
-	        writer.close();
+//				Parsing of returned JSON Array			
+				JSONParser parser=new JSONParser();
+				Object obj = parser.parse(output);
+		        JSONArray array = (JSONArray)obj;
+		        Iterator itr = array.iterator();
+		        while(itr.hasNext()) {
+		        	 JSONObject obj2 = (JSONObject)itr.next();
+		        	 writer.print(obj2.get("_type") + ",");
+		        	 writer.print(obj2.get("_id") + ",");
+		        	 writer.print(obj2.get("name") + ",");
+		        	 writer.print(obj2.get("type") + ",");
+		        	 JSONObject obj3 = (JSONObject)obj2.get("geo_position");
+		        	 writer.print(obj3.get("latitude") + ",");
+		        	 writer.println(obj3.get("longitude"));
+		         }
+		         
+//		        Close the file writer
+		        writer.close();
+
+			}
+			else{
+				System.out.println("Provided String argument doesn't have any match");
+			}
+			
 //	        Close http connection
 			httpClient.getConnectionManager().shutdown();
 			
